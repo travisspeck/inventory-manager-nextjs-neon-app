@@ -1,8 +1,7 @@
 import Pagination from "@/components/pagination";
 import Sidebar from "@/components/sidebar";
 import { getSession } from "@/lib/auth/server";
-// import { deleteProduct } from "@/lib/actions/products";
-// import { getCurrentUser } from "@/lib/auth";
+import { deleteProduct } from "@/lib/actions/products";
 import { prisma } from "@/lib/prisma";
 
 export default async function InventoryPage({
@@ -10,14 +9,14 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-    const { data: session } = await getSession();
-    const user = session?.user;
-    const userId = user?.id;
+  const { data: session } = await getSession();
+  const user = session?.user;
+  const userId = user?.id;
 
   const params = await searchParams;
   const q = (params.q ?? "").trim();
   const page = Math.max(1, Number(params.page ?? 1));
-  const pageSize = 5;
+  const pageSize = 10;
 
   const where = {
     userId,
@@ -113,12 +112,7 @@ export default async function InventoryPage({
                       {product.lowStockAt || "-"}
                     </td>
                     <td className="px-6 py-4  text-sm text-gray-500">
-                      <form
-                        action={async (formData: FormData) => {
-                          "use server";
-                          await deleteProduct(formData);
-                        }}
-                      >
+                      <form action={deleteProduct}>
                         <input type="hidden" name="id" value={product.id} />
                         <button className="text-red-600 hover:text-red-900">
                           Delete

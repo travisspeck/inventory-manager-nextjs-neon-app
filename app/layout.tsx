@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
 import { authClient } from "@/lib/auth/client";
-import { NeonAuthUIProvider, UserButton } from "@neondatabase/auth/react";
+import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

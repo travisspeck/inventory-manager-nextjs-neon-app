@@ -1,13 +1,10 @@
+"use client";
+
 import Sidebar from "@/components/sidebar";
-import { createProduct } from "@/lib/actions/products";
-import { getSession } from "@/lib/auth/server";
-// import { getCurrentUser } from "@/lib/auth";
+import { addProductAction } from "@/lib/actions/products";
 import Link from "next/link";
 
-export default async function AddProductPage() {
-    const { data: session } = await getSession();
-    const user = session?.user;
-    const userId = user?.id;
+export default function AddProductPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar currentPath="/add-product" />
@@ -28,7 +25,7 @@ export default async function AddProductPage() {
 
         <div className="max-w-2xl">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <form className="space-y-6" action={createProduct}>
+            <form action={addProductAction as any} className="space-y-4">
               <div>
                 <label
                   htmlFor="name"
@@ -133,8 +130,8 @@ export default async function AddProductPage() {
               </div>
             </form>
           </div>
-        </div>
-      </main>
-    </div>
+        </div >
+      </main >
+    </div >
   );
 }

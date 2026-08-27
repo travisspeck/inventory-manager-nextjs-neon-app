@@ -1,53 +1,73 @@
 "use server";
 
 import { redirect } from "next/navigation";
-// import { getCurrentUser } from "../auth";
 import { prisma } from "../prisma";
-import { z } from "zod";
 import { getSession } from "../auth/server";
-
-const ProductSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().nonnegative("Price must be non-negative"),
-  quantity: z.coerce.number().int().min(0, "Quantity must be non-negative"),
-  sku: z.string().optional(),
-  lowStockAt: z.coerce.number().int().min(0).optional(),
-});
+import { revalidatePath } from "next/cache";
 
 export async function deleteProduct(formData: FormData) {
-    const { data: session } = await getSession();
-    const user = session?.user;
-    const userId = user?.id;
-    const id = String(formData.get("id") || "");
+  const { data: session } = await getSession();
+  const user = session?.user;
+  const userId = user?.id;
+
+  if (!user || typeof userId !== "string") {
+    throw new Error("Unauthorized. Please log in again.");
+  }
+
+  const id = String(formData.get("id") || "");
+
+  if (!id) {
+    throw new Error("Product ID is required for deletion.");
+  }
 
   await prisma.product.deleteMany({
-    where: { id: id, userId: userId },
+    where: { id: id, userId: user.id },
   });
+
+  revalidatePath("/inventory");
 }
 
-export async function createProduct(formData: FormData) {
-    const { data: session } = await getSession();
-    const user = session?.user;
-    const userId = user?.id;
+export async function parseAddProduct(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const rawSku = String(formData.get("sku") ?? "").trim();
+  const sku = rawSku === "" ? null : rawSku;
+  const price = String(formData.get("price") ?? "").trim();
+  const quantity = parseInt(String(formData.get("quantity") ?? "")) || 0;
+  const lowStockAt = parseInt(String(formData.get("lowStockAt") ?? "")) || 0;
+    return {
+    name,
+    sku,
+    price,
+    quantity,
+    lowStockAt,
+  };
+}
 
-  const parsed = ProductSchema.safeParse({
-    name: formData.get("name"),
-    price: formData.get("price"),
-    quantity: formData.get("quantity"),
-    sku: formData.get("sku") || undefined,
-    lowStockAt: formData.get("lowStockAt") || undefined,
-  });
+export async function addProductAction(formData: FormData) {
+  const { data: session } = await getSession();
+  const user = session?.user;
+  const userId = user?.id;
 
-  if (!parsed.success) {
-    throw new Error("Validation failed");
+  if (!user || typeof userId !== "string") {
+    return { error: "User not valid." };
   }
+
+  const input = await parseAddProduct(formData);
 
   try {
     await prisma.product.create({
-      data: { ...parsed.data, userId: userId },
+      data: {
+        userId: userId,
+        name: input.name,
+        sku: input.sku,
+        price: input.price,
+        quantity: input.quantity,
+        lowStockAt: input.lowStockAt,
+      },
     });
-    redirect("/inventory");
-  } catch (error) {
-    throw new Error("Failed to create product.");
+  } catch (err) {
+    console.log(err);
   }
+
+  redirect(`/inventory`);
 }

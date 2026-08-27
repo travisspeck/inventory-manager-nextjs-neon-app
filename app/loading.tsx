@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, Package, Plus, Settings } from "lucide-react";
-// import { UserButton } from "@stackframe/stack";
 
 // Skeleton component for loading states
 function Skeleton({ className = "" }: { className?: string }) {

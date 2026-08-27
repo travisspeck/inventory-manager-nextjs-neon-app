@@ -1,9 +1,13 @@
+import { getSession } from "@/lib/auth/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  //   if (user) {
-  //   redirect("/dashboard");
-  // }
+export default async function Home() {
+  const { data: session } = await getSession();
+  const user = session?.user;
+  if (user) {
+     redirect(`/dashboard`);
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center">
       <div className="container mx-auto px-4 py-16">

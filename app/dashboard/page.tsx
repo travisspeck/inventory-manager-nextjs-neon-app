@@ -8,9 +8,7 @@ import { TrendingUp } from "lucide-react";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
-
 export default async function DashboardPage() {
-
     const { data: session } = await getSession();
     const user = session?.user;
     const userId = user?.id;

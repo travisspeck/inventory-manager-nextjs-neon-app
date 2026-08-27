@@ -1,9 +1,8 @@
-  import { PrismaPg } from '@prisma/adapter-pg'
-  import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from '@prisma/client'
 
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
-  const prisma = new PrismaClient({ adapter })
-
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   const demoUserId = "d1399cfc-d34b-421a-b8da-b28fb6619b81";
@@ -33,4 +32,4 @@ main()
     await prisma.$disconnect();
   });
 
-  // seed database: npx dotenv -e .env -- npx tsx ./prisma/seed.ts
+// seed database: npx dotenv -e .env -- npx tsx ./prisma/seed.ts
